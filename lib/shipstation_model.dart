@@ -121,7 +121,7 @@ class Order {
       shipTo: map['shipTo'] != null ? ShipTo.fromMap(map['shipTo'] as Map<String, dynamic>) : null,
       items: map['items'] != null
           ? List<Item>.from(
-              (map['items'] as List<int>).map<Item?>(
+              (map['items']).map<Item?>(
                 (x) => Item.fromMap(x as Map<String, dynamic>),
               ),
             )
