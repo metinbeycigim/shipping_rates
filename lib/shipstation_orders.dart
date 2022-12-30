@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shipping_rates/shipstation_credentials.dart';
@@ -9,7 +8,11 @@ import 'package:shipping_rates/shipstation_rate_model.dart';
 class ShipstationOrders {
   final apiKey = ShipstationCredentials.key;
   final apiSecret = ShipstationCredentials.secret;
-  final dio = Dio();
+  final dio = Dio(BaseOptions(connectTimeout: 5000, receiveTimeout: 5000));
+  
+
+  //! shipstation has 40 requests limit in every 1 minute. DO NOT use post method for 'every' order in one function.
+  
 
   Future<ShipstationModel> getOrders() async {
     final response =
@@ -17,18 +20,19 @@ class ShipstationOrders {
 
     try {
       return ShipstationModel.fromMap(response.data);
-    } on PlatformException catch (error) {
+    } on DioError catch (error) {
       Fluttertoast.showToast(msg: error.message.toString());
     }
     throw Exception('Failed to load orders');
   }
 
-  Future<List<ShipstationRateModel>> getRates(json) async {
+  Future<List<ShipstationRateModel>> getRates(Map<String, dynamic> json) async {
     final response = await dio.post('https://$apiKey:$apiSecret@ssapi.shipstation.com/shipments/getrates', data: json);
-    print(response.data);
+
     try {
-      return List<ShipstationRateModel>.from((response.data as List).map((e) => ShipstationRateModel.fromMap(e)));
-    } on PlatformException catch (error) {
+      return List<ShipstationRateModel>.from(
+          response.data.map<ShipstationRateModel>((e) => ShipstationRateModel.fromMap(e)));
+    } on DioError catch (error) {
       Fluttertoast.showToast(msg: error.message.toString());
     }
     throw Exception('Failed to load orders');

@@ -30,6 +30,9 @@ class ShipstationModel {
 
   factory ShipstationModel.fromJson(String source) =>
       ShipstationModel.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  String toString() => 'ShipstationModel(orders: $orders)';
 }
 
 class Order {
@@ -139,6 +142,11 @@ class Order {
   String toJson() => json.encode(toMap());
 
   factory Order.fromJson(String source) => Order.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  String toString() {
+    return 'Order(orderId: $orderId, orderNumber: $orderNumber, orderDate: $orderDate, orderKey: $orderKey, createDate: $createDate, modifyDate: $modifyDate, paymentDate: $paymentDate, orderStatus: $orderStatus, customerNote: $customerNote, internalNote: $internalNote, customerId: $customerId, customerUsername: $customerUsername, shipTo: $shipTo, items: $items, shippingAmount: $shippingAmount, customerNotes: $customerNotes, carrierCode: $carrierCode, serviceCode: $serviceCode, packageCode: $packageCode, weight: $weight, dimensions: $dimensions)';
+  }
 }
 
 class Item {
@@ -174,6 +182,11 @@ class Item {
   String toJson() => json.encode(toMap());
 
   factory Item.fromJson(String source) => Item.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  String toString() {
+    return 'Item(sku: $sku, name: $name, quantity: $quantity, weight: $weight)';
+  }
 }
 
 class ShipTo {
@@ -241,6 +254,11 @@ class ShipTo {
   String toJson() => json.encode(toMap());
 
   factory ShipTo.fromJson(String source) => ShipTo.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  String toString() {
+    return 'ShipTo(name: $name, company: $company, street1: $street1, street2: $street2, street3: $street3, city: $city, state: $state, postalCode: $postalCode, country: $country, phone: $phone, residential: $residential, addressVerified: $addressVerified)';
+  }
 }
 
 class Weight {
@@ -268,6 +286,9 @@ class Weight {
   String toJson() => json.encode(toMap());
 
   factory Weight.fromJson(String source) => Weight.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  String toString() => 'Weight(value: $value, units: $units)';
 }
 
 class Dimensions {
@@ -303,4 +324,9 @@ class Dimensions {
   String toJson() => json.encode(toMap());
 
   factory Dimensions.fromJson(String source) => Dimensions.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  String toString() {
+    return 'Dimensions(units: $units, length: $length, width: $width, height: $height)';
+  }
 }
