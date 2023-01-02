@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shipping_rates/rates.dart';
 import 'package:shipping_rates/shipstation_orders.dart';
 
 class Orders extends ConsumerWidget {
@@ -34,11 +35,45 @@ class Orders extends ConsumerWidget {
                   shrinkWrap: true,
                   itemCount: orderList.length,
                   itemBuilder: (context, index) {
+                    final Map<String, dynamic> fedexJson = {
+                      "carrierCode": "fedex",
+                      "serviceCode": null,
+                      "packageCode": null,
+                      "fromPostalCode": 75041,
+                      "toState": orderList[index].shipTo?.state,
+                      "toCountry": orderList[index].shipTo?.country,
+                      "toPostalCode": orderList[index].shipTo?.postalCode?.split('-')[0],
+                      "toCity": orderList[index].shipTo?.city,
+                      "weight": orderList[index].weight?.toMap(),
+                      "dimensions": orderList[index].dimensions?.toMap(),
+                      "confirmation": "delivery",
+                      "residential": orderList[index].shipTo?.residential,
+                    };
+                    final Map<String, dynamic> upsJson = {
+                      "carrierCode": "ups_walleted",
+                      "serviceCode": null,
+                      "packageCode": null,
+                      "fromPostalCode": 75041,
+                      "toState": orderList[index].shipTo?.state,
+                      "toCountry": orderList[index].shipTo?.country,
+                      "toPostalCode": orderList[index].shipTo?.postalCode?.split('-')[0],
+                      "toCity": orderList[index].shipTo?.city,
+                      "weight": orderList[index].weight?.toMap(),
+                      "dimensions": orderList[index].dimensions?.toMap(),
+                      "confirmation": "delivery",
+                      "residential": orderList[index].shipTo?.residential,
+                    };
                     
-
                     return Padding(
                         padding: const EdgeInsets.all(4.0),
                         child: ListTile(
+                          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                            return Rates(
+                              fedexJson: fedexJson,
+                              upsJson: upsJson,
+                              orderNumber: orderList[index].orderNumber.toString(),
+                            );
+                          })),
                           shape: RoundedRectangleBorder(
                               side: const BorderSide(color: Colors.black, width: 1),
                               borderRadius: BorderRadius.circular(5)),
