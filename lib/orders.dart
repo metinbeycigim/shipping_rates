@@ -1,88 +1,38 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shipping_rates/rates.dart';
-import 'package:shipping_rates/shipstation_orders.dart';
+import 'package:shipping_rates/shipstation_model.dart';
 
-class Orders extends ConsumerWidget {
+class Orders extends StatefulWidget {
   const Orders({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final orders = ref.watch(ShipstationOrders.shipStationGetOrders);
+  State<Orders> createState() => _OrdersState();
+}
 
+class _OrdersState extends State<Orders> {
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Orders'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: orders.hasValue
-                ? Text(
-                    'Order Qty: ${orders.whenData((value) => value.orders!.length).value}',
-                  )
-                : const Text('Loading'),
-          ),
-        ],
       ),
       body: RefreshIndicator(
-        onRefresh: () async => await ref.refresh(ShipstationOrders.shipStationGetOrders.future),
-        child: orders.when(
-            data: (shipstation) {
-              final orderList = shipstation.orders ?? [];
-
+        onRefresh: () async => await ShipstationModel().getOrders(),
+        child: FutureBuilder(
+          future: ShipstationModel().getOrders(),
+          builder: (context, snapshot) {
+            final orderList = snapshot.data?.orders;
+            if (orderList != null) {
               return ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  shrinkWrap: true,
                   itemCount: orderList.length,
                   itemBuilder: (context, index) {
-                    final Map<String, dynamic> fedexJson = {
-                      "carrierCode": "fedex",
-                      "serviceCode": null,
-                      "packageCode": null,
-                      "fromPostalCode": 75041,
-                      "toState": orderList[index].shipTo?.state,
-                      "toCountry": orderList[index].shipTo?.country,
-                      "toPostalCode": orderList[index].shipTo?.postalCode?.split('-')[0],
-                      "toCity": orderList[index].shipTo?.city,
-                      "weight": orderList[index].weight?.toMap(),
-                      "dimensions": orderList[index].dimensions?.toMap(),
-                      "confirmation": "delivery",
-                      "residential": orderList[index].shipTo?.residential,
-                    };
-                    final Map<String, dynamic> upsJson = {
-                      "carrierCode": "ups_walleted",
-                      "serviceCode": null,
-                      "packageCode": null,
-                      "fromPostalCode": 75041,
-                      "toState": orderList[index].shipTo?.state,
-                      "toCountry": orderList[index].shipTo?.country,
-                      "toPostalCode": orderList[index].shipTo?.postalCode?.split('-')[0],
-                      "toCity": orderList[index].shipTo?.city,
-                      "weight": orderList[index].weight?.toMap(),
-                      "dimensions": orderList[index].dimensions?.toMap(),
-                      "confirmation": "delivery",
-                      "residential": orderList[index].shipTo?.residential,
-                    };
-                    
-                    return Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: ListTile(
-                          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                            return Rates(
-                              fedexJson: fedexJson,
-                              upsJson: upsJson,
-                              orderNumber: orderList[index].orderNumber.toString(),
-                            );
-                          })),
-                          shape: RoundedRectangleBorder(
-                              side: const BorderSide(color: Colors.black, width: 1),
-                              borderRadius: BorderRadius.circular(5)),
-                          leading: Text(orderList[index].orderNumber.toString()),
-                        ));
+                    return ListTile(
+                      leading: Text(orderList[index].orderNumber.toString()),
+                    );
                   });
-            },
-            error: ((error, stackTrace) => Text(error.toString())),
-            loading: () => const Center(child: CircularProgressIndicator())),
+            }
+            return const Center(child: CircularProgressIndicator());
+          },
+        ),
       ),
     );
   }

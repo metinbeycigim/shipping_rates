@@ -6,7 +6,7 @@ class Rates extends ConsumerWidget {
   final Map<String, dynamic> fedexJson;
   final Map<String, dynamic> upsJson;
   final String orderNumber;
-  
+
   const Rates({
     super.key,
     required this.fedexJson,
@@ -57,9 +57,9 @@ class Rates extends ConsumerWidget {
                     itemBuilder: (context, index) => Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: ListTile(
-                        leading: Text(fedexRates![index].serviceName),
+                        leading: Text(fedexRates![index].serviceName.toString()),
                         trailing:
-                            Text((fedexRates[index].shipmentCost + fedexRates[index].otherCost).toStringAsFixed(2)),
+                            Text((fedexRates[index].shipmentCost! + fedexRates[index].otherCost!).toStringAsFixed(2)),
                       ),
                     ),
                   ),
@@ -73,9 +73,9 @@ class Rates extends ConsumerWidget {
                       itemBuilder: (context, index) => Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: ListTile(
-                              leading: Text(upsRates![index].serviceName),
+                              leading: Text(upsRates![index].serviceName.toString()),
                               trailing:
-                                  Text((upsRates[index].shipmentCost + upsRates[index].otherCost).toStringAsFixed(2)),
+                                  Text((upsRates[index].shipmentCost! + upsRates[index].otherCost!).toStringAsFixed(2)),
                             ),
                           )),
                 ],
