@@ -2,12 +2,18 @@ import 'package:shipping_rates/shipstation_model.dart';
 import 'package:shipping_rates/shipstation_rate_model.dart';
 
 class MainModel {
-  final ShipstationModel order;
-  final List<ShipstationRateModel> rates;
+  final List<Map<String, dynamic>>? ratedOrders;
 
-  MainModel(this.order, this.rates);
+  MainModel({this.ratedOrders});
 
-  factory MainModel.fromModels(ShipstationModel order, List<ShipstationRateModel> rates) {
-    return MainModel(order,rates);
+  factory MainModel.fromModels(ShipstationModel orders, List<ShipstationRateModel> rates) {
+    final processedOrders = <Map<String, dynamic>>[];
+    for (var order in orders.orders!) {
+      final eachOrder = order.toMap();
+      eachOrder['rates'] = rates;
+      processedOrders.add(eachOrder);
+    }
+
+    return MainModel(ratedOrders: processedOrders);
   }
 }
