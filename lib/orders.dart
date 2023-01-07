@@ -63,15 +63,24 @@ class Orders extends ConsumerWidget {
                       "confirmation": "delivery",
                       "residential": orderList[index].shipTo?.residential,
                     };
-                    
+
                     return Padding(
                         padding: const EdgeInsets.all(4.0),
                         child: ListTile(
+                          tileColor: (orderList[index].weight?.value == 0.00 ||
+                                  orderList[index].dimensions?.height == 0.00 ||
+                                  orderList[index].dimensions?.length == 0.00 ||
+                                  orderList[index].dimensions?.width == 0.00 ||
+                                  orderList[index].dimensions == null ||
+                                  orderList[index].weight == null)
+                              ? Colors.red
+                              : Colors.white,
                           onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) {
                             return Rates(
                               fedexJson: fedexJson,
                               upsJson: upsJson,
                               orderNumber: orderList[index].orderNumber.toString(),
+                              order: orderList[index],
                             );
                           })),
                           shape: RoundedRectangleBorder(
