@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -10,9 +8,9 @@ import 'package:shipping_rates/shipstation_rate_model.dart';
 class ShipstationOrders {
   final apiKey = ShipstationCredentials.key;
   final apiSecret = ShipstationCredentials.secret;
-  final dio = Dio();
+  final dio = Dio(BaseOptions(connectTimeout: 5000, receiveTimeout: 5000));
 
-  //! shipstation has 40 requests limit in every 1 minute. DO NOT use post method for 'every' order in one sync function.
+  //! shipstation has 40 requests limit in every 1 minute. DO NOT use post method for 'every' order in one function.
 
   Future<ShipstationModel> getOrders() async {
     final response =
@@ -36,13 +34,6 @@ class ShipstationOrders {
     } on DioError catch (error) {
       Fluttertoast.showToast(msg: error.message.toString());
     }
-    throw Exception('Failed to load orders');
-  }
-
-  Stream<List<ShipstationRateModel>> getFedExRatesStream(Map<String, dynamic> jsonFedex) async* {
-    Stream.periodic(const Duration(seconds: 2))
-        .asyncMap((_) => getFedExRates(jsonFedex).then((value) => print('Post sent')));
-
     throw Exception('Failed to load orders');
   }
 
