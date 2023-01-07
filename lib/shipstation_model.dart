@@ -1,5 +1,9 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shipping_rates/shipstation_credentials.dart';
+
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
 class ShipstationModel {
@@ -7,6 +11,24 @@ class ShipstationModel {
   ShipstationModel({
     this.orders,
   });
+
+  final apiKey = ShipstationCredentials.key;
+  final apiSecret = ShipstationCredentials.secret;
+  final dio = Dio();
+
+  //! shipstation has 40 requests limit in every 1 minute. DO NOT use post method for 'every' order in one sync function.
+
+  Future<ShipstationModel> getOrders() async {
+    final response =
+        await dio.get('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders?orderStatus=awaiting_shipment');
+
+    try {
+      return ShipstationModel.fromMap(response.data);
+    } on DioError catch (error) {
+      Fluttertoast.showToast(msg: error.message.toString());
+    }
+    throw Exception('Failed to load orders');
+  }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{

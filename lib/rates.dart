@@ -76,9 +76,9 @@ class Rates extends ConsumerWidget {
                           await dio.post('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders/createorder',
                               data: selectedOrder.toMap());
                         },
-                        leading: Text(fedexRates![index].serviceName),
+                        leading: Text(fedexRates![index].serviceName.toString()),
                         trailing:
-                            Text((fedexRates[index].shipmentCost + fedexRates[index].otherCost).toStringAsFixed(2)),
+                            Text((fedexRates[index].shipmentCost! + fedexRates[index].otherCost!).toStringAsFixed(2)),
                       ),
                     ),
                   ),
@@ -102,13 +102,14 @@ class Rates extends ConsumerWidget {
                                     billToMyOtherAccount: upsAccNumber,
                                   ),
                                 );
+                                
 
                                 await dio.post('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders/createorder',
                                     data: selectedOrder.toMap());
                               },
-                              leading: Text(upsRates![index].serviceName),
+                              leading: Text(upsRates![index].serviceName.toString()),
                               trailing:
-                                  Text((upsRates[index].shipmentCost + upsRates[index].otherCost).toStringAsFixed(2)),
+                                  Text((upsRates[index].shipmentCost! + upsRates[index].otherCost!).toStringAsFixed(2)),
                             ),
                           )),
                 ],
