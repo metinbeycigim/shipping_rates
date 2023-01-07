@@ -16,23 +16,6 @@ class Rates extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final fedexJsonSample = {
-    //   "carrierCode": "fedex",
-    //   "serviceCode": null,
-    //   "packageCode": null,
-    //   "fromPostalCode": "78041",
-    //   "toState": "GA",
-    //   "toCountry": "US",
-    //   "toPostalCode": "30024",
-    //   "toCity": 'SUWANEE',
-    //   "weight": {"value": 120, "units": "ounces"},
-    //   "dimensions": {"units": "inches", "length": 4, "width": 12, "height": 25},
-    //   "confirmation": "delivery",
-    //   "residential": true
-    // };
-    final dio = Dio();
-    const apiKey = ShipstationCredentials.key;
-    const apiSecret = ShipstationCredentials.secret;
     const fedexAccNumber = ShipstationCredentials.fedexAccountNumber;
     const upsAccNumber = ShipstationCredentials.upsAccountNumber;
 
@@ -63,7 +46,7 @@ class Rates extends ConsumerWidget {
                       padding: const EdgeInsets.all(8.0),
                       child: ListTile(
                         onTap: () async {
-                          final selectedOrder = order.copyWith(
+                          final Order selectedOrder = order.copyWith(
                             carrierCode: 'fedex',
                             serviceCode: 'fedex_home_delivery',
                             packageCode: 'package',
@@ -72,9 +55,7 @@ class Rates extends ConsumerWidget {
                               billToMyOtherAccount: fedexAccNumber,
                             ),
                           );
-
-                          await dio.post('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders/createorder',
-                              data: selectedOrder.toMap());
+                          await shipstationPostFunction(selectedOrder);
                         },
                         leading: Text(fedexRates![index].serviceName.toString()),
                         trailing:
@@ -93,7 +74,7 @@ class Rates extends ConsumerWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: ListTile(
                               onTap: () async {
-                                final selectedOrder = order.copyWith(
+                                final Order selectedOrder = order.copyWith(
                                   carrierCode: 'ups_walleted',
                                   serviceCode: 'ups_ground',
                                   packageCode: 'package',
@@ -102,10 +83,7 @@ class Rates extends ConsumerWidget {
                                     billToMyOtherAccount: upsAccNumber,
                                   ),
                                 );
-                                
-
-                                await dio.post('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders/createorder',
-                                    data: selectedOrder.toMap());
+                                await shipstationPostFunction(selectedOrder);
                               },
                               leading: Text(upsRates![index].serviceName.toString()),
                               trailing:
@@ -119,5 +97,12 @@ class Rates extends ConsumerWidget {
             }
           },
         ));
+  }
+
+  Future<Response<dynamic>> shipstationPostFunction(Order selectedOrder) {
+    final dio = Dio();
+    const apiKey = ShipstationCredentials.key;
+    const apiSecret = ShipstationCredentials.secret;
+    return dio.post('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders/createorder', data: selectedOrder.toMap());
   }
 }
