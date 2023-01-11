@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "702456398518",
+    "firebase_url": "https://rates-e5ec7-default-rtdb.firebaseio.com",
+    "project_id": "rates-e5ec7",
+    "storage_bucket": "rates-e5ec7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:702456398518:android:35dd2e7c28aac9e13e5c17",
+        "android_client_info": {
+          "package_name": "com.example.shipping_rates"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "702456398518-92t7ajjm4fu31etrjamueb8opcegbatl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4ZpP1drsBEyNv1R_1ndx7ReACuhlbS9M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "702456398518-92t7ajjm4fu31etrjamueb8opcegbatl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
