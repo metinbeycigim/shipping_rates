@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shipping_rates/firebase_database.dart';
 import 'package:shipping_rates/rates.dart';
 import 'package:shipping_rates/shipstation_orders.dart';
 
@@ -30,6 +31,10 @@ class Orders extends ConsumerWidget {
       body: orders.when(
           data: (shipstation) {
             final orderList = shipstation.orders ?? [];
+            for (var order in orderList) {
+              FirebaseDatabase().addOrder(order);
+              FirebaseDatabase().addFedexRates(order);
+            }
 
             return ListView.builder(
                 physics: const BouncingScrollPhysics(),
