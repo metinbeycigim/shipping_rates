@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shipping_rates/firebase_database.dart';
 import 'package:shipping_rates/rates.dart';
 import 'package:shipping_rates/shipstation_orders.dart';
@@ -33,8 +34,20 @@ class Orders extends ConsumerWidget {
             final orderList = shipstation.orders ?? [];
             for (var order in orderList) {
               FirebaseDatabase().addOrder(order);
-              FirebaseDatabase().addFedexRates(order);
             }
+            final weightedList = orderList.where((order) => order.weight?.value != 0).toList();
+
+            Future<void> runDioMethods() async {
+              for (var i = 0; i < weightedList.length; i++) {
+                await Future.delayed(const Duration(milliseconds: 1600));
+                FirebaseDatabase().addFedexRates(weightedList[i]);
+                if (i == weightedList.length - 1) {
+                  Fluttertoast.showToast(msg: 'List is ready!', toastLength: Toast.LENGTH_SHORT);
+                }
+              }
+            }
+
+            runDioMethods();
 
             return ListView.builder(
                 physics: const BouncingScrollPhysics(),

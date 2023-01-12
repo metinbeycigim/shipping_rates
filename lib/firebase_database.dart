@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart' hide Order;
 import 'package:dio/dio.dart';
 import 'package:shipping_rates/shipstation_credentials.dart';
 import 'package:shipping_rates/shipstation_model.dart';
-import 'package:shipping_rates/shipstation_rate_model.dart';
+
+import 'shipstation_rate_model.dart';
 
 class FirebaseDatabase {
   FirebaseFirestore get firebaseDatabase => FirebaseFirestore.instance;
@@ -38,6 +39,13 @@ class FirebaseDatabase {
     final response =
         await dio.post('https://$apiKey:$apiSecret@ssapi.shipstation.com/shipments/getrates', data: fedexJson);
 
-    
+    await rateRef.set({'rates': response.data});
+  }
+
+  Future<List<ShipstationRateModel>> getFedexRates(Order order) async {
+    final rateRef = firebaseRatesRef.doc(order.orderNumber);
+    final ratesSnapshot = await rateRef.get();
+    return List<ShipstationRateModel>.from(
+        ratesSnapshot.data()?['rates'].map<ShipstationRateModel>((e) => ShipstationRateModel.fromMap(e)));
   }
 }
