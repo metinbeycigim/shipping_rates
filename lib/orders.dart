@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:shipping_rates/firebase_database.dart';
-import 'package:shipping_rates/rates.dart';
 import 'package:shipping_rates/shipstation_orders.dart';
+import 'package:shipping_rates/shipstation_rate_model.dart';
 
 class Orders extends ConsumerWidget {
   const Orders({super.key});
@@ -31,58 +29,30 @@ class Orders extends ConsumerWidget {
       ),
       body: orders.when(
           data: (shipstation) {
+            // Awaiting shipments list.
             final orderList = shipstation.orders ?? [];
-            for (var order in orderList) {
-              FirebaseDatabase().addOrder(order);
-            }
+            // The list contains the weights are not null.
             final weightedList = orderList.where((order) => order.weight?.value != 0).toList();
+            // Weighted list rates in this Map. Initial value is empty.
+            final rateList = <String, List<ShipstationRateModel>>{};
 
-            Future<void> runDioMethods() async {
+            Future<void> getRates() async {
               for (var i = 0; i < weightedList.length; i++) {
                 await Future.delayed(const Duration(milliseconds: 1600));
-                FirebaseDatabase().addFedexRates(weightedList[i]);
-                if (i == weightedList.length - 1) {
-                  Fluttertoast.showToast(msg: 'List is ready!', toastLength: Toast.LENGTH_SHORT);
-                }
+                final fedexRate = await ShipstationOrders().getFedExRate(weightedList[i]);
+                rateList['${weightedList[i].orderNumber} / FedEx'] = fedexRate;
+                final upsRate = await ShipstationOrders().getUpsRate(weightedList[i]);
+                rateList['${weightedList[i].orderNumber} / UPS'] = upsRate;
               }
             }
 
-            runDioMethods();
+            getRates();
 
             return ListView.builder(
                 physics: const BouncingScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: orderList.length,
                 itemBuilder: (context, index) {
-                  final Map<String, dynamic> fedexJson = {
-                    "carrierCode": "fedex",
-                    "serviceCode": null,
-                    "packageCode": null,
-                    "fromPostalCode": 75041,
-                    "toState": orderList[index].shipTo?.state,
-                    "toCountry": orderList[index].shipTo?.country,
-                    "toPostalCode": orderList[index].shipTo?.postalCode?.split('-')[0],
-                    "toCity": orderList[index].shipTo?.city,
-                    "weight": orderList[index].weight?.toMap(),
-                    "dimensions": orderList[index].dimensions?.toMap(),
-                    "confirmation": "delivery",
-                    "residential": orderList[index].shipTo?.residential,
-                  };
-                  final Map<String, dynamic> upsJson = {
-                    "carrierCode": "ups_walleted",
-                    "serviceCode": null,
-                    "packageCode": null,
-                    "fromPostalCode": 75041,
-                    "toState": orderList[index].shipTo?.state,
-                    "toCountry": orderList[index].shipTo?.country,
-                    "toPostalCode": orderList[index].shipTo?.postalCode?.split('-')[0],
-                    "toCity": orderList[index].shipTo?.city,
-                    "weight": orderList[index].weight?.toMap(),
-                    "dimensions": orderList[index].dimensions?.toMap(),
-                    "confirmation": "delivery",
-                    "residential": orderList[index].shipTo?.residential,
-                  };
-
                   return Padding(
                       padding: const EdgeInsets.all(4.0),
                       child: ListTile(
@@ -94,14 +64,6 @@ class Orders extends ConsumerWidget {
                                 orderList[index].weight == null)
                             ? Colors.red
                             : Colors.white,
-                        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                          return Rates(
-                            fedexJson: fedexJson,
-                            upsJson: upsJson,
-                            orderNumber: orderList[index].orderNumber.toString(),
-                            order: orderList[index],
-                          );
-                        })),
                         shape: RoundedRectangleBorder(
                             side: const BorderSide(color: Colors.black, width: 1),
                             borderRadius: BorderRadius.circular(5)),
