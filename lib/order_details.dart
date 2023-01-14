@@ -1,19 +1,18 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shipping_rates/shipstation_credentials.dart';
 import 'package:shipping_rates/shipstation_model.dart';
 
-class OrderUpdate extends StatefulWidget {
+class OrderDetails extends StatefulWidget {
   final Order order;
-  const OrderUpdate({required this.order, super.key});
+  const OrderDetails({required this.order, super.key});
 
   @override
-  State<OrderUpdate> createState() => _OrderUpdateState();
+  State<OrderDetails> createState() => _OrderDetailsState();
 }
 
-class _OrderUpdateState extends State<OrderUpdate> {
+class _OrderDetailsState extends State<OrderDetails> {
   TextEditingController weightLbsController = TextEditingController();
   TextEditingController weightOzController = TextEditingController();
   TextEditingController heightController = TextEditingController();
@@ -33,11 +32,10 @@ class _OrderUpdateState extends State<OrderUpdate> {
     weightOzController.text =
         (widget.order.weight?.value != null) ? (widget.order.weight!.value! % 16).toStringAsFixed(1) : '0';
     heightController.text =
-        (widget.order.dimensions?.height != null) ? '${widget.order.dimensions?.height?.toString()} in' : '0';
-    widthController.text =
-        (widget.order.dimensions?.width != null) ? '${widget.order.dimensions?.width?.toString()} in' : '0';
+        (widget.order.dimensions?.height != null) ? widget.order.dimensions!.height.toString() : '0';
+    widthController.text = (widget.order.dimensions?.width != null) ? widget.order.dimensions!.width.toString() : '0';
     lengthController.text =
-        (widget.order.dimensions?.length != null) ? '${widget.order.dimensions?.length?.toString()} in' : '0';
+        (widget.order.dimensions?.length != null) ? widget.order.dimensions!.length.toString() : '0';
   }
 
   @override
@@ -50,6 +48,7 @@ class _OrderUpdateState extends State<OrderUpdate> {
     super.dispose();
   }
 
+//! this screen shows single item details. multiple items should be added.
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -169,13 +168,13 @@ class _OrderUpdateState extends State<OrderUpdate> {
                           }
 
                           FocusManager.instance.primaryFocus?.unfocus();
-                          Fluttertoast.showToast(msg: 'Uploaded');
                         } catch (e) {
-                          Fluttertoast.showToast(msg: e.toString());
+                          Text(e.toString());
                         }
                       }
                     },
-                    child: const Text('Submit'))
+                    child: const Text('Submit')),
+                const SizedBox(height: 150),
               ],
             ),
           ),

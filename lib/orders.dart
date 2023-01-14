@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shipping_rates/order_update.dart';
+import 'package:shipping_rates/order_details.dart';
 import 'package:shipping_rates/shipstation_orders.dart';
 import 'package:shipping_rates/shipstation_rate_model.dart';
 
@@ -57,8 +57,8 @@ class Orders extends ConsumerWidget {
                   return Padding(
                       padding: const EdgeInsets.all(4.0),
                       child: ListTile(
-                        onTap: () => Navigator.of(context)
-                            .push(MaterialPageRoute(builder: (context) => OrderUpdate(order: orderList[index].copyWith()))),
+                        onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(builder: (context) => OrderDetails(order: orderList[index].copyWith()))),
                         tileColor: (orderList[index].weight?.value == 0.00 ||
                                 orderList[index].dimensions?.height == 0.00 ||
                                 orderList[index].dimensions?.length == 0.00 ||
