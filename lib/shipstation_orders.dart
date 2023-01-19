@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shipping_rates/shipstation_credentials.dart';
 import 'package:shipping_rates/shipstation_model.dart';
-import 'package:shipping_rates/shipstation_rate_model.dart';
 
 class ShipstationOrders {
   final apiKey = ShipstationCredentials.key;

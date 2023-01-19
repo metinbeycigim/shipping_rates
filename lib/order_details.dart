@@ -59,123 +59,142 @@ class _OrderDetailsState extends State<OrderDetails> {
           key: _formKey,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          controller: weightLbsController,
-                          decoration: const InputDecoration(
-                            labelText: 'lbs',
-                            border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(6))),
-                          ),
-                          validator: validator,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
-                          onTap: () => weightLbsController.selection =
-                              TextSelection(baseOffset: 0, extentOffset: weightLbsController.text.length),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 300,
+                    width: double.infinity,
+                    child: Center(
+                      child: ListView.builder(
+                        itemExtent: 500,
+                        itemCount: widget.order.items?.length,
+                        itemBuilder: (context, index) => SizedBox(
+                          height: 250,
+                          width: 250,
+                          child: Image.network(widget.order.items?[index].imageUrl.toString() ?? ''),
                         ),
+                        scrollDirection: Axis.horizontal,
+                        shrinkWrap: true,
                       ),
                     ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          controller: weightOzController,
-                          decoration: const InputDecoration(
-                            labelText: 'oz',
-                            border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(6))),
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextFormField(
+                            controller: weightLbsController,
+                            decoration: const InputDecoration(
+                              labelText: 'lbs',
+                              border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(6))),
+                            ),
+                            validator: validator,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
+                            onTap: () => weightLbsController.selection =
+                                TextSelection(baseOffset: 0, extentOffset: weightLbsController.text.length),
                           ),
-                          validator: validator,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
-                          onTap: () => weightOzController.selection =
-                              TextSelection(baseOffset: 0, extentOffset: weightOzController.text.length),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    controller: lengthController,
-                    decoration: const InputDecoration(
-                      labelText: 'Length',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(6))),
-                    ),
-                    validator: validator,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
-                    onTap: () => lengthController.selection =
-                        TextSelection(baseOffset: 0, extentOffset: lengthController.text.length),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextFormField(
+                            controller: weightOzController,
+                            decoration: const InputDecoration(
+                              labelText: 'oz',
+                              border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(6))),
+                            ),
+                            validator: validator,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
+                            onTap: () => weightOzController.selection =
+                                TextSelection(baseOffset: 0, extentOffset: weightOzController.text.length),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    controller: widthController,
-                    decoration: const InputDecoration(
-                      labelText: 'Width',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(6))),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      controller: lengthController,
+                      decoration: const InputDecoration(
+                        labelText: 'Length',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(6))),
+                      ),
+                      validator: validator,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
+                      onTap: () => lengthController.selection =
+                          TextSelection(baseOffset: 0, extentOffset: lengthController.text.length),
                     ),
-                    validator: validator,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
-                    onTap: () => widthController.selection =
-                        TextSelection(baseOffset: 0, extentOffset: widthController.text.length),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    controller: heightController,
-                    decoration: const InputDecoration(
-                      labelText: 'Height',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(6))),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      controller: widthController,
+                      decoration: const InputDecoration(
+                        labelText: 'Width',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(6))),
+                      ),
+                      validator: validator,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
+                      onTap: () => widthController.selection =
+                          TextSelection(baseOffset: 0, extentOffset: widthController.text.length),
                     ),
-                    validator: validator,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
-                    onTap: () => heightController.selection =
-                        TextSelection(baseOffset: 0, extentOffset: heightController.text.length),
                   ),
-                ),
-                ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        final modifiedOrder = widget.order
-                            .copyWith(
-                              weight: Weight(
-                                value:
-                                    double.parse(weightLbsController.text) * 16 + double.parse(weightOzController.text),
-                              ),
-                              dimensions: Dimensions(
-                                length: double.parse(lengthController.text),
-                                width: double.parse(widthController.text),
-                                height: double.parse(heightController.text),
-                              ),
-                            )
-                            .toMap();
-                        try {
-                          await dio.post('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders/createorder',
-                              data: modifiedOrder);
-                          if (mounted) {
-                            Navigator.of(context).pop();
-                          }
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      controller: heightController,
+                      decoration: const InputDecoration(
+                        labelText: 'Height',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(6))),
+                      ),
+                      validator: validator,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
+                      onTap: () => heightController.selection =
+                          TextSelection(baseOffset: 0, extentOffset: heightController.text.length),
+                    ),
+                  ),
+                  ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          final modifiedOrder = widget.order
+                              .copyWith(
+                                weight: Weight(
+                                  value: double.parse(weightLbsController.text.trim()) * 16 +
+                                      double.parse(weightOzController.text.trim()),
+                                ),
+                                dimensions: Dimensions(
+                                  length: double.parse(lengthController.text.trim()),
+                                  width: double.parse(widthController.text.trim()),
+                                  height: double.parse(heightController.text.trim()),
+                                ),
+                              )
+                              .toMap();
+                          try {
+                            await dio.post('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders/createorder',
+                                data: modifiedOrder);
+                            if (mounted) {
+                              Navigator.of(context).pop();
+                            }
 
-                          FocusManager.instance.primaryFocus?.unfocus();
-                        } catch (e) {
-                          Text(e.toString());
+                            FocusManager.instance.primaryFocus?.unfocus();
+                          } catch (e) {
+                            Text(e.toString());
+                          }
                         }
-                      }
-                    },
-                    child: const Text('Submit')),
-                const SizedBox(height: 150),
-              ],
+                      },
+                      child: const Text('Submit')),
+                  const SizedBox(height: 150),
+                ],
+              ),
             ),
           ),
         ),

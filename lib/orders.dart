@@ -1,19 +1,41 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shipping_rates/order_details.dart';
+import 'package:shipping_rates/shipstation_model.dart';
 import 'package:shipping_rates/shipstation_orders.dart';
-import 'package:shipping_rates/shipstation_rate_model.dart';
 
-class Orders extends ConsumerWidget {
+class Orders extends ConsumerStatefulWidget {
   const Orders({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() => _OrdersState();
+}
+
+class _OrdersState extends ConsumerState<Orders> {
+  bool isLoading = false;
+  @override
+  Widget build(BuildContext context) {
     final orders = ref.watch(ShipstationOrders.shipStationGetOrders);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Orders'),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Orders'),
+            if (isLoading)
+              const SizedBox(
+                height: 30,
+                width: 30,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  backgroundColor: Colors.white,
+                ),
+              )
+          ],
+        ),
         actions: [
           IconButton(
               onPressed: () async => await ref.refresh(ShipstationOrders.shipStationGetOrders.future),
@@ -30,51 +52,85 @@ class Orders extends ConsumerWidget {
       ),
       body: orders.when(
           data: (shipstation) {
-            // Awaiting shipments list.
-            final orderList = shipstation.orders ?? [];
             // The list contains the weights are not null.
-            final weightedList = orderList.where((order) => order.weight?.value != 0).toList();
-            // Weighted list rates in this Map. Initial value is empty.
-            final rateList = <String, List<ShipstationRateModel>>{};
+            final List<Order> orderList = shipstation.orders ?? [];
 
             Future<void> getRates() async {
-              for (var i = 0; i < weightedList.length; i++) {
-                await Future.delayed(const Duration(milliseconds: 1600));
-                final fedexRate = await ShipstationOrders().getFedExRate(weightedList[i]);
-                rateList['${weightedList[i].orderNumber} / FedEx'] = fedexRate;
-                final upsRate = await ShipstationOrders().getUpsRate(weightedList[i]);
-                rateList['${weightedList[i].orderNumber} / UPS'] = upsRate;
+              setState(() {
+                isLoading = !isLoading;
+              });
+
+              for (var order in orderList) {
+                if (order.weight?.value != 0.00) {
+                  List<ShipstationRateModel> rateList = [];
+                  await Future.delayed(const Duration(milliseconds: 1800));
+                  final fedexRate = await ShipstationOrders().getFedExRate(order);
+                  rateList.addAll(fedexRate);
+                  final upsRate = await ShipstationOrders().getUpsRate(order);
+                  rateList.addAll(upsRate);
+                  rateList.sort((a, b) => (a.shipmentCost! + a.otherCost!).compareTo(b.shipmentCost! + b.otherCost!));
+                  order.cheapRate = rateList[0];
+                } else {
+                  order.cheapRate =
+                      ShipstationRateModel(serviceName: 'Weight data missing!!!', otherCost: 0, shipmentCost: 0);
+                }
               }
             }
 
-            // getRates();
-
-            return ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: orderList.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: ListTile(
-                        onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(builder: (context) => OrderDetails(order: orderList[index].copyWith()))),
-                        tileColor: (orderList[index].weight?.value == 0.00 ||
-                                orderList[index].dimensions?.height == 0.00 ||
-                                orderList[index].dimensions?.length == 0.00 ||
-                                orderList[index].dimensions?.width == 0.00 ||
-                                orderList[index].dimensions == null ||
-                                orderList[index].weight == null)
-                            ? Colors.red
-                            : Colors.white,
-                        shape: RoundedRectangleBorder(
-                            side: const BorderSide(color: Colors.black, width: 1),
-                            borderRadius: BorderRadius.circular(5)),
-                        leading: Text(orderList[index].orderNumber.toString()),
-                      ));
-                });
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                      onPressed: () => getRates().then((_) {
+                            setState(() {
+                              isLoading = !isLoading;
+                            });
+                          }),
+                      child: const Text('Get Rates')),
+                  const SizedBox(height: 10),
+                  ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: orderList.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: ListTile(
+                              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => OrderDetails(order: orderList[index].copyWith()))),
+                              tileColor: (orderList[index].weight?.value == 0.00 ||
+                                      orderList[index].dimensions?.height == 0.00 ||
+                                      orderList[index].dimensions?.length == 0.00 ||
+                                      orderList[index].dimensions?.width == 0.00 ||
+                                      orderList[index].dimensions == null ||
+                                      orderList[index].weight == null)
+                                  ? Colors.red
+                                  : Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  side: const BorderSide(color: Colors.black, width: 1),
+                                  borderRadius: BorderRadius.circular(5)),
+                              leading: Text(orderList[index].orderNumber.toString()),
+                              title: Row(
+                                children: [
+                                  const Text('|   '),
+                                  Text(orderList[index].cheapRate?.serviceName ?? ''),
+                                  if (orderList[index].cheapRate?.serviceName != null) const Text(' ------ '),
+                                  if (orderList[index].cheapRate?.serviceName != null)
+                                    Text(
+                                        '\$ ${((orderList[index].cheapRate?.otherCost! ?? 0) + (orderList[index].cheapRate?.shipmentCost! ?? 0)).toStringAsFixed(2)}')
+                                ],
+                              ),
+                              trailing: (orderList[index].shipTo?.addressVerified == "Address validated successfully")
+                                  ? const Icon(Icons.check, color: Colors.green)
+                                  : const Icon(Icons.question_mark_sharp, color: Colors.red),
+                            ));
+                      }),
+                ],
+              ),
+            );
           },
-          error: ((error, stackTrace) => Text(error.toString())),
+          error: ((error, stackTrace) => Text(stackTrace.toString())),
           loading: () => const Center(child: CircularProgressIndicator())),
     );
   }

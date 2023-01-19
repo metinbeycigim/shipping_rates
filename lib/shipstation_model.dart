@@ -79,6 +79,7 @@ class Order {
   String? externallyFulfilledById;
   String? externallyFulfilledByName;
   String? labelMessages;
+  ShipstationRateModel? cheapRate;
 
   Order(
     this.orderId,
@@ -124,6 +125,7 @@ class Order {
     this.externallyFulfilledById,
     this.externallyFulfilledByName,
     this.labelMessages,
+    this.cheapRate,
   );
 
   Map<String, dynamic> toMap() {
@@ -171,6 +173,7 @@ class Order {
       'externallyFulfilledById': externallyFulfilledById,
       'externallyFulfilledByName': externallyFulfilledByName,
       'labelMessages': labelMessages,
+      'theCheapestRate': cheapRate?.toMap(),
     };
   }
 
@@ -219,6 +222,7 @@ class Order {
       map['externallyFulfilledById'],
       map['externallyFulfilledByName'],
       map['labelMessages'],
+      map['theCheapestRate'] != null ? ShipstationRateModel.fromMap(map['rates']) : null,
     );
   }
 
@@ -270,6 +274,7 @@ class Order {
     String? externallyFulfilledById,
     String? externallyFulfilledByName,
     String? labelMessages,
+    ShipstationRateModel? theCheapestRate,
   }) {
     return Order(
       orderId ?? this.orderId,
@@ -315,12 +320,13 @@ class Order {
       externallyFulfilledById ?? this.externallyFulfilledById,
       externallyFulfilledByName ?? this.externallyFulfilledByName,
       labelMessages ?? this.labelMessages,
+      theCheapestRate ?? cheapRate,
     );
   }
 
   @override
   String toString() {
-    return 'Order(orderId: $orderId, orderNumber: $orderNumber, orderKey: $orderKey, orderDate: $orderDate, createDate: $createDate, modifyDate: $modifyDate, paymentDate: $paymentDate, shipByDate: $shipByDate, orderStatus: $orderStatus, customerId: $customerId, customerUsername: $customerUsername, customerEmail: $customerEmail, billTo: $billTo, shipTo: $shipTo, items: $items, orderTotal: $orderTotal, amountPaid: $amountPaid, taxAmount: $taxAmount, shippingAmount: $shippingAmount, customerNotes: $customerNotes, internalNotes: $internalNotes, gift: $gift, giftMessage: $giftMessage, paymentMethod: $paymentMethod, requestedShippingService: $requestedShippingService, carrierCode: $carrierCode, serviceCode: $serviceCode, packageCode: $packageCode, confirmation: $confirmation, shipDate: $shipDate, holdUntilDate: $holdUntilDate, weight: $weight, dimensions: $dimensions, insuranceOptions: $insuranceOptions, internationalOptions: $internationalOptions, advancedOptions: $advancedOptions, tagIds: $tagIds, userId: $userId, externallyFulfilled: $externallyFulfilled, externallyFulfilledBy: $externallyFulfilledBy, externallyFulfilledById: $externallyFulfilledById, externallyFulfilledByName: $externallyFulfilledByName, labelMessages: $labelMessages)';
+    return 'Order(orderId: $orderId, orderNumber: $orderNumber, orderKey: $orderKey, orderDate: $orderDate, createDate: $createDate, modifyDate: $modifyDate, paymentDate: $paymentDate, shipByDate: $shipByDate, orderStatus: $orderStatus, customerId: $customerId, customerUsername: $customerUsername, customerEmail: $customerEmail, billTo: $billTo, shipTo: $shipTo, items: $items, orderTotal: $orderTotal, amountPaid: $amountPaid, taxAmount: $taxAmount, shippingAmount: $shippingAmount, customerNotes: $customerNotes, internalNotes: $internalNotes, gift: $gift, giftMessage: $giftMessage, paymentMethod: $paymentMethod, requestedShippingService: $requestedShippingService, carrierCode: $carrierCode, serviceCode: $serviceCode, packageCode: $packageCode, confirmation: $confirmation, shipDate: $shipDate, holdUntilDate: $holdUntilDate, weight: $weight, dimensions: $dimensions, insuranceOptions: $insuranceOptions, internationalOptions: $internationalOptions, advancedOptions: $advancedOptions, tagIds: $tagIds, userId: $userId, externallyFulfilled: $externallyFulfilled, externallyFulfilledBy: $externallyFulfilledBy, externallyFulfilledById: $externallyFulfilledById, externallyFulfilledByName: $externallyFulfilledByName, labelMessages: $labelMessages, theCheapestRate: $cheapRate)';
   }
 }
 
@@ -834,5 +840,45 @@ class AdvancedOptions {
       billToCountryCode: billToCountryCode ?? this.billToCountryCode,
       billToMyOtherAccount: billToMyOtherAccount ?? this.billToMyOtherAccount,
     );
+  }
+}
+
+class ShipstationRateModel {
+  String? serviceName;
+  String? serviceCode;
+  double? shipmentCost;
+  double? otherCost;
+  ShipstationRateModel({
+    this.serviceName,
+    this.serviceCode,
+    this.shipmentCost,
+    this.otherCost,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'serviceName': serviceName,
+      'serviceCode': serviceCode,
+      'shipmentCost': shipmentCost,
+      'otherCost': otherCost,
+    };
+  }
+
+  factory ShipstationRateModel.fromMap(Map<String, dynamic> map) {
+    return ShipstationRateModel(
+      serviceName: map['serviceName'],
+      serviceCode: map['serviceCode'],
+      shipmentCost: map['shipmentCost']?.toDouble(),
+      otherCost: map['otherCost']?.toDouble(),
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory ShipstationRateModel.fromJson(String source) => ShipstationRateModel.fromMap(json.decode(source));
+
+  @override
+  String toString() {
+    return 'ShipstationRateModel(serviceName: $serviceName, serviceCode: $serviceCode, shipmentCost: $shipmentCost, otherCost: $otherCost)';
   }
 }
