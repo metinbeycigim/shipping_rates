@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shipping_rates/order_details.dart';
+import 'package:shipping_rates/shipstation_credentials.dart';
 import 'package:shipping_rates/shipstation_model.dart';
 import 'package:shipping_rates/shipstation_orders.dart';
 
@@ -15,6 +16,8 @@ class Orders extends ConsumerStatefulWidget {
 
 class _OrdersState extends ConsumerState<Orders> {
   bool isLoading = false;
+  bool isPostButtonDisable = true;
+
   @override
   Widget build(BuildContext context) {
     final orders = ref.watch(ShipstationOrders.shipStationGetOrders);
@@ -38,7 +41,11 @@ class _OrdersState extends ConsumerState<Orders> {
         ),
         actions: [
           IconButton(
-              onPressed: () async => await ref.refresh(ShipstationOrders.shipStationGetOrders.future),
+              onPressed: () async => await ref.refresh(ShipstationOrders.shipStationGetOrders.future).then((_) {
+                    setState(() {
+                      isPostButtonDisable = !isPostButtonDisable;
+                    });
+                  }),
               icon: const Icon(Icons.refresh_sharp)),
           Padding(
             padding: const EdgeInsets.all(20),
@@ -81,13 +88,47 @@ class _OrdersState extends ConsumerState<Orders> {
               child: Column(
                 children: [
                   const SizedBox(height: 10),
-                  ElevatedButton(
-                      onPressed: () => getRates().then((_) {
-                            setState(() {
-                              isLoading = !isLoading;
-                            });
-                          }),
-                      child: const Text('Get Rates')),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                          onPressed: () => getRates().then((_) {
+                                setState(() {
+                                  isLoading = !isLoading;
+                                  isPostButtonDisable = !isPostButtonDisable;
+                                });
+                              }),
+                          child: const Text('Get Rates')),
+                      ElevatedButton(
+                          onPressed: !isPostButtonDisable
+                              ? () async {
+                                  setState(() {
+                                    isLoading = !isLoading;
+                                  });
+                                  for (var order in orderList) {
+                                    await Future.delayed(const Duration(milliseconds: 1800));
+                                    final Order selectedOrder = order.copyWith(
+                                      carrierCode:
+                                          order.cheapRate!.serviceName!.contains('UPS') ? 'ups_walleted' : 'fedex',
+                                      serviceCode: order.cheapRate?.serviceCode ?? 'fedex_home_delivery',
+                                      packageCode: 'package',
+                                      advancedOptions: order.advancedOptions?.copyWith(
+                                        billToParty: 'my_other_account',
+                                        billToMyOtherAccount: order.cheapRate!.serviceName!.contains('FedEx')
+                                            ? ShipstationCredentials.fedexAccountNumber
+                                            : ShipstationCredentials.upsAccountNumber,
+                                      ),
+                                    );
+                                    ShipstationOrders().shipstationPostFunction(selectedOrder);
+                                  }
+                                  setState(() {
+                                    isLoading = !isLoading;
+                                  });
+                                }
+                              : null,
+                          child: const Text('Post Rates')),
+                    ],
+                  ),
                   const SizedBox(height: 10),
                   ListView.builder(
                       physics: const BouncingScrollPhysics(),

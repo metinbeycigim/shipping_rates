@@ -179,11 +179,10 @@ class _OrderDetailsState extends State<OrderDetails> {
                               )
                               .toMap();
                           try {
-                            await dio.post('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders/createorder',
-                                data: modifiedOrder);
-                            if (mounted) {
-                              Navigator.of(context).pop();
-                            }
+                            await dio
+                                .post('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders/createorder',
+                                    data: modifiedOrder)
+                                .then((_) => Navigator.of(context).pop());
 
                             FocusManager.instance.primaryFocus?.unfocus();
                           } catch (e) {

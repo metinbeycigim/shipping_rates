@@ -13,7 +13,7 @@ class ShipstationOrders {
 
   Future<ShipstationModel> getOrders() async {
     final response =
-        await dio.get('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders?orderStatus=awaiting_shipment');
+        await dio.get('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders?orderStatus=awaiting_shipment&pageSize=6');
 
     try {
       return ShipstationModel.fromMap(response.data);
@@ -21,6 +21,13 @@ class ShipstationOrders {
       Fluttertoast.showToast(msg: error.message.toString());
     }
     throw Exception('Failed to load orders');
+  }
+
+  Future<Response<dynamic>> shipstationPostFunction(Order selectedOrder) {
+    final dio = Dio();
+    const apiKey = ShipstationCredentials.key;
+    const apiSecret = ShipstationCredentials.secret;
+    return dio.post('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders/createorder', data: selectedOrder.toMap());
   }
 
   Future<List<ShipstationRateModel>> getFedExRate(Order order) async {
