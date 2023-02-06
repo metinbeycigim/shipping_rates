@@ -81,6 +81,7 @@ class Order {
   String? labelMessages;
   ShipstationRateModel? cheapRate;
 
+
   Order(
     this.orderId,
     this.orderNumber,
@@ -438,7 +439,7 @@ class Item {
   int? unitPrice;
   double? taxAmount;
   int? shippingAmount;
-  int? warehouseLocation;
+  String? warehouseLocation;
   ItemOption? options;
   int? productId;
   String? fulfillmentSku;
@@ -500,7 +501,7 @@ class Item {
       unitPrice: map['unitPrice']?.toInt(),
       taxAmount: map['taxAmount']?.toDouble(),
       shippingAmount: map['shippingAmount']?.toInt(),
-      warehouseLocation: map['warehouseLocation']?.toInt(),
+      warehouseLocation: map['warehouseLocation'],
       productId: map['productId']?.toInt(),
       fulfillmentSku: map['fulfillmentSku'],
       adjustment: map['adjustment'],

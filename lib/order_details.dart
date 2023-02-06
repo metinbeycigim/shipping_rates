@@ -19,8 +19,8 @@ class _OrderDetailsState extends State<OrderDetails> {
   TextEditingController widthController = TextEditingController();
   TextEditingController lengthController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final apiKey = ShipstationCredentials.key;
-  final apiSecret = ShipstationCredentials.secret;
+  final apiKey = ShipstationCredentials.mapleKey;
+  final apiSecret = ShipstationCredentials.mapleSecret;
   final dio = Dio();
 
   @override

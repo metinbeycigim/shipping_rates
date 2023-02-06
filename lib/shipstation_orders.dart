@@ -5,15 +5,15 @@ import 'package:shipping_rates/shipstation_credentials.dart';
 import 'package:shipping_rates/shipstation_model.dart';
 
 class ShipstationOrders {
-  final apiKey = ShipstationCredentials.key;
-  final apiSecret = ShipstationCredentials.secret;
+  final apiKey = ShipstationCredentials.mapleKey;
+  final apiSecret = ShipstationCredentials.mapleSecret;
   final dio = Dio();
 
   //! shipstation has 40 requests limit in every 1 minute. DO NOT use post method for 'every' order in one function.
 
   Future<ShipstationModel> getOrders() async {
-    final response =
-        await dio.get('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders?orderStatus=awaiting_shipment');
+    final response = await dio
+        .get('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders?orderStatus=awaiting_shipment&pageSize=500');
 
     try {
       return ShipstationModel.fromMap(response.data);
@@ -76,6 +76,10 @@ class ShipstationOrders {
       Fluttertoast.showToast(msg: error.message.toString());
     }
     throw Exception('Failed to load orders');
+  }
+
+  Future<Response<dynamic>> postRates(Order selectedOrder) {
+    return dio.post('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders/createorder', data: selectedOrder.toMap());
   }
 
   static final shipStationGetOrders = FutureProvider<ShipstationModel>((ref) => ShipstationOrders().getOrders());
