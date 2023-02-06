@@ -12,13 +12,8 @@ class ShipstationOrders {
   //! shipstation has 40 requests limit in every 1 minute. DO NOT use post method for 'every' order in one function.
 
   Future<ShipstationModel> getOrders() async {
-<<<<<<< HEAD
     final response = await dio
         .get('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders?orderStatus=awaiting_shipment&pageSize=500');
-=======
-    final response =
-        await dio.get('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders?orderStatus=awaiting_shipment&pageSize=6');
->>>>>>> 32d6e5df7fc378a019112e39a863388e45973cc7
 
     try {
       return ShipstationModel.fromMap(response.data);
@@ -29,9 +24,7 @@ class ShipstationOrders {
   }
 
   Future<Response<dynamic>> shipstationPostFunction(Order selectedOrder) {
-    final dio = Dio();
-    const apiKey = ShipstationCredentials.key;
-    const apiSecret = ShipstationCredentials.secret;
+
     return dio.post('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders/createorder', data: selectedOrder.toMap());
   }
 
