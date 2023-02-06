@@ -17,6 +17,7 @@ class Orders extends ConsumerStatefulWidget {
 
 class _OrdersState extends ConsumerState<Orders> {
   bool isLoading = false;
+<<<<<<< HEAD
   final TextEditingController _orderNumberController = TextEditingController();
   final StopWatchTimer _stopWatchTimer = StopWatchTimer();
 
@@ -26,6 +27,9 @@ class _OrdersState extends ConsumerState<Orders> {
     _orderNumberController.dispose();
     _stopWatchTimer.dispose();
   }
+=======
+  bool isPostButtonDisable = true;
+>>>>>>> 32d6e5df7fc378a019112e39a863388e45973cc7
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +63,17 @@ class _OrdersState extends ConsumerState<Orders> {
         ),
         actions: [
           IconButton(
+<<<<<<< HEAD
               onPressed: () => ref
                   .refresh(ShipstationOrders.shipStationGetOrders.future)
                   .then((_) => _stopWatchTimer.onResetTimer()),
+=======
+              onPressed: () async => await ref.refresh(ShipstationOrders.shipStationGetOrders.future).then((_) {
+                    setState(() {
+                      isPostButtonDisable = !isPostButtonDisable;
+                    });
+                  }),
+>>>>>>> 32d6e5df7fc378a019112e39a863388e45973cc7
               icon: const Icon(Icons.refresh_sharp)),
           Padding(
             padding: const EdgeInsets.all(20),
@@ -120,6 +132,7 @@ class _OrdersState extends ConsumerState<Orders> {
                 children: [
                   const SizedBox(height: 10),
                   Row(
+<<<<<<< HEAD
                     children: [
                       Padding(
                         padding: const EdgeInsets.fromLTRB(4, 0, 150, 0),
@@ -155,6 +168,49 @@ class _OrdersState extends ConsumerState<Orders> {
                     ],
                   ),
                   const SizedBox(height: 6),
+=======
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                          onPressed: () => getRates().then((_) {
+                                setState(() {
+                                  isLoading = !isLoading;
+                                  isPostButtonDisable = !isPostButtonDisable;
+                                });
+                              }),
+                          child: const Text('Get Rates')),
+                      ElevatedButton(
+                          onPressed: !isPostButtonDisable
+                              ? () async {
+                                  setState(() {
+                                    isLoading = !isLoading;
+                                  });
+                                  for (var order in orderList) {
+                                    await Future.delayed(const Duration(milliseconds: 1800));
+                                    final Order selectedOrder = order.copyWith(
+                                      carrierCode:
+                                          order.cheapRate!.serviceName!.contains('UPS') ? 'ups_walleted' : 'fedex',
+                                      serviceCode: order.cheapRate?.serviceCode ?? 'fedex_home_delivery',
+                                      packageCode: 'package',
+                                      advancedOptions: order.advancedOptions?.copyWith(
+                                        billToParty: 'my_other_account',
+                                        billToMyOtherAccount: order.cheapRate!.serviceName!.contains('FedEx')
+                                            ? ShipstationCredentials.fedexAccountNumber
+                                            : ShipstationCredentials.upsAccountNumber,
+                                      ),
+                                    );
+                                    ShipstationOrders().shipstationPostFunction(selectedOrder);
+                                  }
+                                  setState(() {
+                                    isLoading = !isLoading;
+                                  });
+                                }
+                              : null,
+                          child: const Text('Post Rates')),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+>>>>>>> 32d6e5df7fc378a019112e39a863388e45973cc7
                   ListView.builder(
                       physics: const BouncingScrollPhysics(),
                       shrinkWrap: true,
