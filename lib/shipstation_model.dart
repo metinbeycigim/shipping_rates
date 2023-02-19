@@ -81,7 +81,6 @@ class Order {
   String? labelMessages;
   ShipstationRateModel? cheapRate;
 
-
   Order(
     this.orderId,
     this.orderNumber,

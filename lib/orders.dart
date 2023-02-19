@@ -46,15 +46,6 @@ class _OrdersState extends ConsumerState<Orders> {
               stream: _stopWatchTimer.rawTime,
               initialData: 0,
             ),
-            if (isLoading)
-              const SizedBox(
-                height: 30,
-                width: 30,
-                child: CircularProgressIndicator(
-                  strokeWidth: 3,
-                  backgroundColor: Colors.white,
-                ),
-              )
           ],
         ),
         actions: [
@@ -67,7 +58,7 @@ class _OrdersState extends ConsumerState<Orders> {
             padding: const EdgeInsets.all(20),
             child: orders.hasValue
                 ? Text(
-                    'Order Qty: ${orders.whenData((value) => value.orders!.length).value}',
+                    'Order Qty: ${orders.whenData((value) => value.orders!.where((order) => order.weight!.value! < 150 * 16).length).value}',
                   )
                 : const Text('Loading'),
           ),
@@ -77,8 +68,10 @@ class _OrdersState extends ConsumerState<Orders> {
           data: (shipstation) {
             // The list contains the weights are not null.
             final List<Order> orderList = shipstation.orders ?? [];
-            final filteredOrders =
-                orderList.where((order) => order.orderNumber!.contains(_orderNumberController.text)).toList();
+            final filteredOrders = orderList
+                .where((order) =>
+                    order.orderNumber!.contains(_orderNumberController.text) && order.weight!.value! < 150 * 16)
+                .toList();
 
             Future<void> getRates() async {
               _stopWatchTimer.onResetTimer();
@@ -91,9 +84,9 @@ class _OrdersState extends ConsumerState<Orders> {
                 // await Future.delayed(const Duration(milliseconds: 1600));
                 if (order.weight?.value != 0.00) {
                   List<ShipstationRateModel> rateList = [];
-                  final fedexRate = await ShipstationOrders().getFedExRate(order);
+                  final fedexRate = await ShipstationOrders().getFedExRate(order, context);
                   rateList.addAll(fedexRate);
-                  final upsRate = await ShipstationOrders().getUpsRate(order);
+                  final upsRate = await ShipstationOrders().getUpsRate(order, context);
                   rateList.addAll(upsRate);
                   rateList.sort((a, b) => (a.shipmentCost! + a.otherCost!).compareTo(b.shipmentCost! + b.otherCost!));
                   order.cheapRate = rateList[0];
@@ -161,37 +154,34 @@ class _OrdersState extends ConsumerState<Orders> {
                       itemCount: filteredOrders.length,
                       itemBuilder: (context, index) {
                         return Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: ListTile(
-                              onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => OrderDetails(order: filteredOrders[index].copyWith()))),
-                              tileColor: (filteredOrders[index].weight?.value == 0.00 ||
-                                      filteredOrders[index].dimensions?.height == 0.00 ||
-                                      filteredOrders[index].dimensions?.length == 0.00 ||
-                                      filteredOrders[index].dimensions?.width == 0.00 ||
-                                      filteredOrders[index].dimensions == null ||
-                                      filteredOrders[index].weight == null)
-                                  ? Colors.red
-                                  : Colors.white,
-                              shape: RoundedRectangleBorder(
-                                  side: const BorderSide(color: Colors.black, width: 1),
-                                  borderRadius: BorderRadius.circular(5)),
-                              leading: Text(filteredOrders[index].orderNumber.toString()),
-                              title: Row(
-                                children: [
-                                  const Text('|   '),
-                                  Text(filteredOrders[index].cheapRate?.serviceName ?? ''),
-                                  if (filteredOrders[index].cheapRate?.serviceName != null) const Text(' ------ '),
-                                  if (filteredOrders[index].cheapRate?.serviceName != null)
-                                    Text(
-                                        '\$ ${((filteredOrders[index].cheapRate?.otherCost! ?? 0) + (filteredOrders[index].cheapRate?.shipmentCost! ?? 0)).toStringAsFixed(2)}'),
-                                ],
-                              ),
-                              trailing:
-                                  (filteredOrders[index].shipTo?.addressVerified == "Address validated successfully")
-                                      ? const Icon(Icons.check, color: Colors.green)
-                                      : const Icon(Icons.question_mark_sharp, color: Colors.red),
-                            ));
+                          padding: const EdgeInsets.all(4.0),
+                          child: ListTile(
+                            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => OrderDetails(order: filteredOrders[index].copyWith()))),
+                            tileColor:
+                                (filteredOrders[index].weight?.value == 0.00 || filteredOrders[index].weight == null)
+                                    ? const Color.fromARGB(255, 184, 180, 180)
+                                    : Colors.white,
+                            shape: RoundedRectangleBorder(
+                                side: const BorderSide(color: Colors.black, width: 1),
+                                borderRadius: BorderRadius.circular(5)),
+                            leading: Text(filteredOrders[index].orderNumber.toString()),
+                            title: Row(
+                              children: [
+                                const Text('|   '),
+                                Text(filteredOrders[index].cheapRate?.serviceName ?? ''),
+                                if (filteredOrders[index].cheapRate?.serviceName != null) const Text(' ------ '),
+                                if (filteredOrders[index].cheapRate?.serviceName != null)
+                                  Text(
+                                      '\$ ${((filteredOrders[index].cheapRate?.otherCost! ?? 0) + (filteredOrders[index].cheapRate?.shipmentCost! ?? 0)).toStringAsFixed(2)}'),
+                              ],
+                            ),
+                            trailing:
+                                (filteredOrders[index].shipTo?.addressVerified == "Address validated successfully")
+                                    ? const Icon(Icons.check, color: Colors.green)
+                                    : const Icon(Icons.question_mark_sharp, color: Colors.red),
+                          ),
+                        );
                       }),
                 ],
               ),
