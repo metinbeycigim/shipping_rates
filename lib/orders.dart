@@ -33,6 +33,8 @@ class _OrdersState extends ConsumerState<Orders> {
 
     return Scaffold(
       appBar: AppBar(
+        bottom: const PreferredSize(
+            preferredSize: Size.fromHeight(10.0), child: SizedBox()),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -40,7 +42,8 @@ class _OrdersState extends ConsumerState<Orders> {
             StreamBuilder(
               builder: (context, snapshot) {
                 final value = snapshot.data as int;
-                final displayTime = StopWatchTimer.getDisplayTime(value, milliSecond: false);
+                final displayTime =
+                    StopWatchTimer.getDisplayTime(value, milliSecond: false);
                 return Text(displayTime);
               },
               stream: _stopWatchTimer.rawTime,
@@ -58,7 +61,17 @@ class _OrdersState extends ConsumerState<Orders> {
             padding: const EdgeInsets.all(20),
             child: orders.hasValue
                 ? Text(
-                    'Order Qty: ${orders.whenData((value) => value.orders!.where((order) => order.weight!.value! < 150 * 16).length).value}',
+                    'Total Order Qty: ${orders.whenData((value) => value.orders!.where((order) => order.weight!.value! < 150 * 16).length).value}',
+                    style: const TextStyle(height: 1),
+                  )
+                : const Text('Loading'),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: orders.hasValue
+                ? Text(
+                    'Order Qty: ${orders.whenData((value) => value.orders!.where((order) => order.weight!.value! < 150 * 16 && !order.tagIds!.contains(65308)).length).value}',
+                    style: const TextStyle(height: 1),
                   )
                 : const Text('Loading'),
           ),
@@ -69,8 +82,13 @@ class _OrdersState extends ConsumerState<Orders> {
             // The list contains the weights are not null.
             final List<Order> orderList = shipstation.orders ?? [];
             final filteredOrders = orderList
-                .where((order) =>
-                    order.orderNumber!.contains(_orderNumberController.text) && order.weight!.value! < 150 * 16)
+                .where(
+                  (order) =>
+                      order.orderNumber!
+                          .contains(_orderNumberController.text) &&
+                      order.weight!.value! < 150 * 16 &&
+                      !order.tagIds!.contains(65308),
+                )
                 .toList();
 
             Future<void> getRates() async {
@@ -84,25 +102,35 @@ class _OrdersState extends ConsumerState<Orders> {
                 // await Future.delayed(const Duration(milliseconds: 1600));
                 if (order.weight?.value != 0.00) {
                   List<ShipstationRateModel> rateList = [];
-                  final fedexRate = await ShipstationOrders().getFedExRate(order, context);
+                  final fedexRate =
+                      await ShipstationOrders().getFedExRate(order, context);
                   rateList.addAll(fedexRate);
-                  final upsRate = await ShipstationOrders().getUpsRate(order, context);
+                  final upsRate =
+                      await ShipstationOrders().getUpsRate(order, context);
                   rateList.addAll(upsRate);
-                  rateList.sort((a, b) => (a.shipmentCost! + a.otherCost!).compareTo(b.shipmentCost! + b.otherCost!));
+                  rateList.sort((a, b) => (a.shipmentCost! + a.otherCost!)
+                      .compareTo(b.shipmentCost! + b.otherCost!));
                   order.cheapRate = rateList[0];
                 } else {
-                  order.cheapRate =
-                      ShipstationRateModel(serviceName: 'Weight data missing!!!', otherCost: 0, shipmentCost: 0);
+                  order.cheapRate = ShipstationRateModel(
+                      serviceName: 'Weight data missing!!!',
+                      otherCost: 0,
+                      shipmentCost: 0);
                 }
                 await ShipstationOrders().postRates(order.copyWith(
-                  carrierCode: order.cheapRate!.serviceName!.contains('UPS') ? 'ups_walleted' : 'fedex',
-                  serviceCode: order.cheapRate?.serviceCode ?? 'fedex_home_delivery',
+                  tagIds: [65308],
+                  carrierCode: order.cheapRate!.serviceName!.contains('UPS')
+                      ? 'ups_walleted'
+                      : 'fedex',
+                  serviceCode:
+                      order.cheapRate?.serviceCode ?? 'fedex_home_delivery',
                   packageCode: 'package',
                   advancedOptions: order.advancedOptions?.copyWith(
                     billToParty: 'my_other_account',
-                    billToMyOtherAccount: order.cheapRate!.serviceName!.contains('FedEx')
-                        ? ShipstationCredentials.mapleFedexAccountNumber
-                        : ShipstationCredentials.mapleUpsAccountNumber,
+                    billToMyOtherAccount:
+                        order.cheapRate!.serviceName!.contains('FedEx')
+                            ? ShipstationCredentials.mapleFedexAccountNumber
+                            : ShipstationCredentials.mapleUpsAccountNumber,
                   ),
                 ));
               }
@@ -156,30 +184,49 @@ class _OrdersState extends ConsumerState<Orders> {
                         return Padding(
                           padding: const EdgeInsets.all(4.0),
                           child: ListTile(
-                            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => OrderDetails(order: filteredOrders[index].copyWith()))),
+                            onTap: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (context) => OrderDetails(
+                                        order:
+                                            filteredOrders[index].copyWith()))),
                             tileColor:
-                                (filteredOrders[index].weight?.value == 0.00 || filteredOrders[index].weight == null)
+                                (filteredOrders[index].weight?.value == 0.00 ||
+                                        filteredOrders[index].weight == null)
                                     ? const Color.fromARGB(255, 184, 180, 180)
                                     : Colors.white,
                             shape: RoundedRectangleBorder(
-                                side: const BorderSide(color: Colors.black, width: 1),
+                                side: const BorderSide(
+                                    color: Colors.black, width: 1),
                                 borderRadius: BorderRadius.circular(5)),
-                            leading: Text(filteredOrders[index].orderNumber.toString()),
+                            leading: Text(
+                                filteredOrders[index].orderNumber.toString()),
                             title: Row(
                               children: [
                                 const Text('|   '),
-                                Text(filteredOrders[index].cheapRate?.serviceName ?? ''),
-                                if (filteredOrders[index].cheapRate?.serviceName != null) const Text(' ------ '),
-                                if (filteredOrders[index].cheapRate?.serviceName != null)
+                                Text(filteredOrders[index]
+                                        .cheapRate
+                                        ?.serviceName ??
+                                    ''),
+                                if (filteredOrders[index]
+                                        .cheapRate
+                                        ?.serviceName !=
+                                    null)
+                                  const Text(' ------ '),
+                                if (filteredOrders[index]
+                                        .cheapRate
+                                        ?.serviceName !=
+                                    null)
                                   Text(
                                       '\$ ${((filteredOrders[index].cheapRate?.otherCost! ?? 0) + (filteredOrders[index].cheapRate?.shipmentCost! ?? 0)).toStringAsFixed(2)}'),
                               ],
                             ),
-                            trailing:
-                                (filteredOrders[index].shipTo?.addressVerified == "Address validated successfully")
-                                    ? const Icon(Icons.check, color: Colors.green)
-                                    : const Icon(Icons.question_mark_sharp, color: Colors.red),
+                            trailing: (filteredOrders[index]
+                                        .shipTo
+                                        ?.addressVerified ==
+                                    "Address validated successfully")
+                                ? const Icon(Icons.check, color: Colors.green)
+                                : const Icon(Icons.question_mark_sharp,
+                                    color: Colors.red),
                           ),
                         );
                       }),

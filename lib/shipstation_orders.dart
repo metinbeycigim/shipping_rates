@@ -13,8 +13,13 @@ class ShipstationOrders {
 
   Future<ShipstationModel> getOrders() async {
     try {
-      final response = await dio
-          .get('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders?orderStatus=awaiting_shipment&pageSize=500');
+      final response = await dio.get(
+          'https://$apiKey:$apiSecret@ssapi.shipstation.com/orders/',
+          queryParameters: {
+            'orderStatus': 'awaiting_shipment',
+            'pageSize': '500',
+            
+          });
       return ShipstationModel.fromMap(response.data);
     } on DioError catch (error) {
       Text(error.message.toString());
@@ -23,7 +28,9 @@ class ShipstationOrders {
   }
 
   Future<Response<dynamic>> shipstationPostFunction(Order selectedOrder) {
-    return dio.post('https://$apiKey:$apiSecret@ssapi.shipstation.com/orders/createorder', data: selectedOrder.toMap());
+    return dio.post(
+        'https://$apiKey:$apiSecret@ssapi.shipstation.com/orders/createorder',
+        data: selectedOrder.toMap());
   }
 
   Future<List<ShipstationRateModel>> getFedExRate(Order order, context) async {
@@ -48,15 +55,16 @@ class ShipstationOrders {
         data: jsonFedex,
         options: Options(contentType: Headers.jsonContentType),
       );
-      return List<ShipstationRateModel>.from(
-          response.data.map<ShipstationRateModel>((e) => ShipstationRateModel.fromMap(e)));
+      return List<ShipstationRateModel>.from(response.data
+          .map<ShipstationRateModel>((e) => ShipstationRateModel.fromMap(e)));
     } on DioError catch (error) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text("Error"),
-            content: Text('Weight may be more than 150 lbs. ${error.message.toString()}'),
+            content: Text(
+                'Weight may be more than 150 lbs. ${error.message.toString()}'),
             actions: [
               TextButton(
                 child: const Text("OK"),
@@ -92,15 +100,16 @@ class ShipstationOrders {
         data: upsJson,
         options: Options(contentType: Headers.jsonContentType),
       );
-      return List<ShipstationRateModel>.from(
-          response.data.map<ShipstationRateModel>((e) => ShipstationRateModel.fromMap(e)));
+      return List<ShipstationRateModel>.from(response.data
+          .map<ShipstationRateModel>((e) => ShipstationRateModel.fromMap(e)));
     } on DioError catch (error) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text("Error"),
-            content: Text('Weight may be more than 150 lbs. ${error.message.toString()}'),
+            content: Text(
+                'Weight may be more than 150 lbs. ${error.message.toString()}'),
             actions: [
               TextButton(
                 child: const Text("OK"),
@@ -122,5 +131,6 @@ class ShipstationOrders {
     );
   }
 
-  static final shipStationGetOrders = FutureProvider<ShipstationModel>((ref) => ShipstationOrders().getOrders());
+  static final shipStationGetOrders = FutureProvider<ShipstationModel>(
+      (ref) => ShipstationOrders().getOrders());
 }

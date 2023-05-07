@@ -193,7 +193,9 @@ class Order {
       map['customerEmail'],
       map['billTo'] != null ? Address.fromMap(map['billTo']) : null,
       map['shipTo'] != null ? Address.fromMap(map['shipTo']) : null,
-      map['items'] != null ? List<Item>.from(map['items']?.map((x) => Item.fromMap(x))) : null,
+      map['items'] != null
+          ? List<Item>.from(map['items']?.map((x) => Item.fromMap(x)))
+          : null,
       map['orderTotal']?.toInt(),
       map['amountPaid']?.toInt(),
       map['taxAmount']?.toDouble(),
@@ -212,17 +214,25 @@ class Order {
       map['holdUntilDate'],
       map['weight'] != null ? Weight.fromMap(map['weight']) : null,
       map['dimensions'] != null ? Dimensions.fromMap(map['dimensions']) : null,
-      map['insuranceOptions'] != null ? InsuranceOptions.fromMap(map['insuranceOptions']) : null,
-      map['internationalOptions'] != null ? InternationalOptions.fromMap(map['internationalOptions']) : null,
-      map['advancedOptions'] != null ? AdvancedOptions.fromMap(map['advancedOptions']) : null,
-      map['tagIds'] != null ? List<int>.from(map['tagIds']) : null,
+      map['insuranceOptions'] != null
+          ? InsuranceOptions.fromMap(map['insuranceOptions'])
+          : null,
+      map['internationalOptions'] != null
+          ? InternationalOptions.fromMap(map['internationalOptions'])
+          : null,
+      map['advancedOptions'] != null
+          ? AdvancedOptions.fromMap(map['advancedOptions'])
+          : null,
+      map['tagIds'] != null ? List<int>.from(map['tagIds']) : [0],
       map['userId'],
       map['externallyFulfilled'],
       map['externallyFulfilledBy'],
       map['externallyFulfilledById'],
       map['externallyFulfilledByName'],
       map['labelMessages'],
-      map['theCheapestRate'] != null ? ShipstationRateModel.fromMap(map['rates']) : null,
+      map['theCheapestRate'] != null
+          ? ShipstationRateModel.fromMap(map['rates'])
+          : null,
     );
   }
 
@@ -394,7 +404,8 @@ class Address {
 
   String toJson() => json.encode(toMap());
 
-  factory Address.fromJson(String source) => Address.fromMap(json.decode(source));
+  factory Address.fromJson(String source) =>
+      Address.fromMap(json.decode(source));
 
   Address copyWith({
     String? name,
@@ -539,7 +550,8 @@ class ItemOption {
 
   String toJson() => json.encode(toMap());
 
-  factory ItemOption.fromJson(String source) => ItemOption.fromMap(json.decode(source));
+  factory ItemOption.fromJson(String source) =>
+      ItemOption.fromMap(json.decode(source));
 }
 
 class Weight {
@@ -573,7 +585,8 @@ class Weight {
   factory Weight.fromJson(String source) => Weight.fromMap(json.decode(source));
 
   @override
-  String toString() => 'Weight(value: $value, units: $units, weightUnits: $weightUnits)';
+  String toString() =>
+      'Weight(value: $value, units: $units, weightUnits: $weightUnits)';
 }
 
 class Dimensions {
@@ -608,7 +621,8 @@ class Dimensions {
 
   String toJson() => json.encode(toMap());
 
-  factory Dimensions.fromJson(String source) => Dimensions.fromMap(json.decode(source));
+  factory Dimensions.fromJson(String source) =>
+      Dimensions.fromMap(json.decode(source));
 }
 
 class InsuranceOptions {
@@ -639,7 +653,8 @@ class InsuranceOptions {
 
   String toJson() => json.encode(toMap());
 
-  factory InsuranceOptions.fromJson(String source) => InsuranceOptions.fromMap(json.decode(source));
+  factory InsuranceOptions.fromJson(String source) =>
+      InsuranceOptions.fromMap(json.decode(source));
 }
 
 class InternationalOptions {
@@ -663,14 +678,17 @@ class InternationalOptions {
   factory InternationalOptions.fromMap(Map<String, dynamic> map) {
     return InternationalOptions(
       contents: map['contents'],
-      customsItem: map['customsItem'] != null ? CustomsItem.fromMap(map['customsItem']) : null,
+      customsItem: map['customsItem'] != null
+          ? CustomsItem.fromMap(map['customsItem'])
+          : null,
       nondelivery: map['nondelivery'],
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory InternationalOptions.fromJson(String source) => InternationalOptions.fromMap(json.decode(source));
+  factory InternationalOptions.fromJson(String source) =>
+      InternationalOptions.fromMap(json.decode(source));
 }
 
 class CustomsItem {
@@ -713,7 +731,8 @@ class CustomsItem {
 
   String toJson() => json.encode(toMap());
 
-  factory CustomsItem.fromJson(String source) => CustomsItem.fromMap(json.decode(source));
+  factory CustomsItem.fromJson(String source) =>
+      CustomsItem.fromMap(json.decode(source));
 }
 
 class AdvancedOptions {
@@ -800,7 +819,8 @@ class AdvancedOptions {
 
   String toJson() => json.encode(toMap());
 
-  factory AdvancedOptions.fromJson(String source) => AdvancedOptions.fromMap(json.decode(source));
+  factory AdvancedOptions.fromJson(String source) =>
+      AdvancedOptions.fromMap(json.decode(source));
 
   AdvancedOptions copyWith({
     int? warehouseId,
@@ -875,7 +895,8 @@ class ShipstationRateModel {
 
   String toJson() => json.encode(toMap());
 
-  factory ShipstationRateModel.fromJson(String source) => ShipstationRateModel.fromMap(json.decode(source));
+  factory ShipstationRateModel.fromJson(String source) =>
+      ShipstationRateModel.fromMap(json.decode(source));
 
   @override
   String toString() {
